@@ -10,12 +10,41 @@ from langchain_community.llms import get_type_to_cls_dict
 
 _ALLOW_DANGEROUS_DESERIALIZATION_ARG = "allow_dangerous_deserialization"
 
+def convert_config(old_config):
+    # Adjusted to ignore 'base_url'
+    new_config = {
+        'model': old_config.get('model', 'llama2'),
+        'mirostat': old_config.get('options', {}).get('mirostat', None),
+        'mirostat_eta': old_config.get('options', {}).get('mirostat_eta', None),
+        'mirostat_tau': old_config.get('options', {}).get('mirostat_tau', None),
+        'num_ctx': old_config.get('options', {}).get('num_ctx', None),
+        'num_gpu': old_config.get('options', {}).get('num_gpu', None),
+        'num_thread': old_config.get('options', {}).get('num_thread', None),
+        'num_predict': old_config.get('options', {}).get('num_predict', None),
+        'repeat_last_n': old_config.get('options', {}).get('repeat_last_n', None),
+        'repeat_penalty': old_config.get('options', {}).get('repeat_penalty', None),
+        'temperature': old_config.get('options', {}).get('temperature', None),
+        'stop': old_config.get('options', {}).get('stop', None),
+        'tfs_z': old_config.get('options', {}).get('tfs_z', None),
+        'top_k': old_config.get('options', {}).get('top_k', None),
+        'top_p': old_config.get('options', {}).get('top_p', None),
+        'system': old_config.get('system', None),
+        'template': old_config.get('template', None),
+        'format': old_config.get('format', None),
+        'keep_alive': old_config.get('keep_alive', None),
+        'headers': old_config.get('headers', None),
+        'timeout': old_config.get('timeout', None),
+    }
+    return new_config
 
 def load_llm_from_config(config: dict, **kwargs: Any) -> BaseLLM:
     """Load LLM from Config Dict."""
     if "_type" not in config:
         raise ValueError("Must specify an LLM Type in config")
     config_type = config.pop("_type")
+
+    if config_type == "ollama":
+        config = convert_config(config)
 
     type_to_cls_dict = get_type_to_cls_dict()
 
@@ -31,7 +60,6 @@ def load_llm_from_config(config: dict, **kwargs: Any) -> BaseLLM:
         )
 
     return llm_cls(**config, **load_kwargs)
-
 
 def load_llm(file: Union[str, Path], **kwargs: Any) -> BaseLLM:
     # Convert file to Path object.
