@@ -391,7 +391,8 @@ class Ollama(BaseLLM, _OllamaCommon):
     @property
     def _llm_type(self) -> str:
         """Return type of llm."""
-        return "ollama-llm"
+        # return "ollama-llm"
+        return "ollama" #Fixes: ValueError: Loading ollama-llm LLM not supported when loading model from mlflow
 
     def _generate(  # type: ignore[override]
         self,
